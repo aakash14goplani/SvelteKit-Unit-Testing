@@ -12,8 +12,7 @@ const config = {
 		},
 		csrf: {
 			checkOrigin: false
-		},
-		
+		}
 	},
 	compilerOptions: {
 		enableSourcemap: true

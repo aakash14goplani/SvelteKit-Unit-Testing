@@ -32,9 +32,9 @@ export const getAll = () => Array.from(db.values());
 export const clear = () => db.clear();
 
 const set = (id: string, item: Item) => {
-  const itemWithId = { ...item, id };
-  db.set(id, itemWithId);
-  return itemWithId;
+	const itemWithId = { ...item, id };
+	db.set(id, itemWithId);
+	return itemWithId;
 };
 
 const empty = (value: string) => value === undefined || value === null || value.trim() === '';
