@@ -1,7 +1,21 @@
 import { expect, test } from '@playwright/test';
 import { BirthdayListPage } from './BirthdayListPage.js';
 
-test('lists all birthday', async ({ page }) => {
+const addBirthday = async (request, { name, dob }) => {
+	await request.post('/api/birthdays', {
+		data: { name, dob }
+	});
+};
+
+test('lists all birthday', async ({ page, request }) => {
+	await addBirthday(request, {
+		name: 'Hercules',
+		dob: '1995-02-03'
+	});
+	await addBirthday(request, {
+		name: 'Athena',
+		dob: '1995-02-03'
+	});
 	const birthdayListPage = new BirthdayListPage(page);
 	await birthdayListPage.goto();
 	await expect(birthdayListPage.entryFor('Hercules')).toBeVisible();
@@ -25,18 +39,17 @@ test('does not save a birthday if there are validation errors', async ({ page })
 	).toBeVisible();
 });
 
-test('edits a birthday', async ({ page }) => {
+test('edits a birthday', async ({ page, request }) => {
+	await addBirthday(request, {
+		name: 'Ares',
+		dob: '1985-01-01'
+	});
 	const birthdayListPage = new BirthdayListPage(page);
 	await birthdayListPage.goto();
-
-	// add a birthday using the form
-	await birthdayListPage.saveNameAndDateOfBirth('Ares', '1985-01-01');
 	await birthdayListPage.beginEditingFor('Ares');
 	await birthdayListPage.saveNameAndDateOfBirth('Ares', '1995-01-01');
 
-	// check that the original text doesn't appear
 	await expect(birthdayListPage.entryFor('Ares')).not.toContainText('1985-01-01');
 
-	// check that the new text does appear
 	await expect(birthdayListPage.entryFor('Ares')).toContainText('1995-01-01');
 });

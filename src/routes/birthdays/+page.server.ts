@@ -1,54 +1,40 @@
 import { fail } from '@sveltejs/kit';
-import { addNew, replace, getAll, has } from '$lib/server/birthdayRepository';
 
-addNew({ name: 'Hercules', dob: '1994-02-02' });
-addNew({ name: 'Athena', dob: '1989-01-01' });
-
-export const load = () => ({
-	birthdays: getAll()
-});
+export const load = async ({ fetch }) => {
+	const result = await fetch('/api/birthdays');
+	return result.json();
+};
 
 export const actions = {
-	default: async ({ request }) => {
+	default: async ({ request, fetch }) => {
 		const data = await request.formData();
 		const id = data.get('id')?.toString() || '';
 		const dob = data.get('dob')?.toString() || '';
 		const name = data.get('name')?.toString() || '';
 
-		if (empty(name)) {
-			return fail(422, {
-				id,
-				dob,
-				error: 'Please provide a name.'
-			});
-		}
-
-		if (invalidDob(dob)) {
-			return fail(422, {
-				id,
-				name,
-				dob,
-				error: 'Please provide a date of birth in the YYYY-MM-DD format.'
-			});
-		}
-
-		if (id && !has(id)) {
-			return fail(422, {
-				error: 'An unknown ID was provided.'
-			});
-		}
-
+		let response;
 		if (id) {
-			replace(id, {
-				name,
-				dob
+			response = await fetch(`/api/birthday/${id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, dob })
 			});
 		} else {
-			addNew({ name, dob });
+			response = await fetch('/api/birthdays', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, dob })
+			});
+		}
+
+		if (!response.ok) {
+			const { message } = await response.json();
+			return fail(422, {
+				id,
+				name,
+				dob,
+				error: message
+			});
 		}
 	}
 };
-
-const empty = (value: string) => value === undefined || value === null || value.trim() === '';
-
-const invalidDob = (dob: string) => isNaN(Date.parse(dob));

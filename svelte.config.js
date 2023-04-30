@@ -5,14 +5,7 @@ import preprocess from 'svelte-preprocess';
 const config = {
 	preprocess: preprocess(),
 	kit: {
-		adapter: adapter(),
-		alias: {
-			$src: './src',
-			$lib: './src/lib'
-		},
-		csrf: {
-			checkOrigin: false
-		}
+		adapter: adapter()
 	},
 	compilerOptions: {
 		enableSourcemap: true

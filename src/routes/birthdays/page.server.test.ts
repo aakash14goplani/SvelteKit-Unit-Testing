@@ -1,174 +1,113 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { actions } from './+page.server';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { actions, load } from './+page.server';
+import { fetchResponseOk, fetchResponseError } from '../../../test/factories/fetch';
 import { createFormDataRequest } from '../../../test/factories/formDataRequest';
 import { createBirthday } from '../../../test/factories/birthday';
-import * as birthdayRepository from '../../lib/server/birthdayRepository';
 
 describe('/birthdays - load', () => {
-	it('returns a fixture of two items', () => {
-		const result = birthdayRepository.getAll();
-		expect(result).toEqual([
-			expect.objectContaining({
-				name: 'Hercules',
-				dob: '1994-02-02'
-			}),
-			expect.objectContaining({
-				name: 'Athena',
-				dob: '1989-01-01'
-			})
-		]);
+	it('calls fetch with /api/birthdays', async () => {
+		const fetch = vi.fn();
+		fetch.mockResolvedValue(fetchResponseOk());
+		await load({ fetch });
+		expect(fetch).toBeCalledWith('/api/birthdays');
+	});
+
+	it('returns the response body', async () => {
+		const birthdays = [
+			createBirthday('Hercules', '1994-02-02'),
+			createBirthday('Athena', '1989-01-01')
+		];
+		const fetch = vi.fn();
+		fetch.mockResolvedValue(fetchResponseOk({ birthdays }));
+		const result = await load({ fetch });
+		expect(result).toEqual({ birthdays });
 	});
 });
 
 describe('/birthdays - default action', () => {
-	beforeEach(birthdayRepository.clear);
-
-	const storedId = () => birthdayRepository.getAll()[0].id;
+	const fetch = vi.fn();
 
 	const performFormAction = (formData) =>
 		actions.default({
-			request: createFormDataRequest(formData)
+			request: createFormDataRequest(formData),
+			fetch
 		});
 
-	it('adds a new birthday into the list', async () => {
-		await performFormAction(createBirthday('Zeus', '2009-02-02'));
+	beforeEach(() => {
+		fetch.mockResolvedValue(fetchResponseOk());
+	});
 
-		expect(birthdayRepository.getAll()).toContainEqual(
-			expect.objectContaining({
+	describe('when adding a new birthday', () => {
+		it('requests data from POST /api/birthdays', async () => {
+			await performFormAction(createBirthday('Zeus', '2009-02-02'));
+			expect(fetch).toBeCalledWith('/api/birthdays', expect.objectContaining({ method: 'POST' }));
+		});
+
+		it('sends the birthday as the request body', async () => {
+			await performFormAction(createBirthday('Zeus', '2009-02-02'));
+			expect(fetch).toBeCalledWith(
+				expect.anything(),
+				expect.objectContaining({
+					body: JSON.stringify({
+						name: 'Zeus',
+						dob: '2009-02-02'
+					})
+				})
+			);
+		});
+
+		it('returns a 422 if the POST request returns an error', async () => {
+			fetch.mockResolvedValue(fetchResponseError('error message'));
+			const result = await performFormAction(createBirthday('Zeus', '2009-02-02'));
+
+			expect(result).toBeUnprocessableEntity({
+				error: 'error message',
 				name: 'Zeus',
 				dob: '2009-02-02'
-			})
-		);
-	});
-
-	it('saves unique ids onto each new birthday', async () => {
-		const request = createBirthday('Zeus', '2009-02-02');
-		await performFormAction(request);
-		await performFormAction(request);
-
-		expect(birthdayRepository.getAll()[0].id).not.toEqual(birthdayRepository.getAll()[1].id);
-	});
-
-	it('updates an entry that shares the same id', async () => {
-		await performFormAction(createBirthday('Zeus', '2009-02-02'));
-		await performFormAction(
-			createBirthday('Zeus Ex', '2007-02-02', {
-				id: storedId()
-			})
-		);
-
-		expect(birthdayRepository.getAll()).toHaveLength(1);
-		expect(birthdayRepository.getAll()).toContainEqual({
-			id: storedId(),
-			name: 'Zeus Ex',
-			dob: '2007-02-02'
+			});
 		});
 	});
 
-	describe('validation errors', () => {
-		describe('when the name is not provided', () => {
-			let result;
+	describe('when replacing an existing birthday', () => {
+		it('requests data from PUT /api/birthday/{id}', async () => {
+			await performFormAction(
+				createBirthday('Zeus', '2009-02-02', {
+					id: '123'
+				})
+			);
+			expect(fetch).toBeCalledWith('/api/birthday/123', expect.objectContaining({ method: 'PUT' }));
+		});
 
-			beforeEach(async () => {
-				result = await performFormAction(createBirthday('', '2009-02-02'));
-			});
-
-			it('does not save the birthday', () => {
-				expect(birthdayRepository.getAll()).not.toContainEqual(
-					expect.objectContaining({
-						name: '',
+		it('sends the birthday as the request body', async () => {
+			await performFormAction(
+				createBirthday('Zeus', '2009-02-02', {
+					id: '123'
+				})
+			);
+			expect(fetch).toBeCalledWith(
+				expect.anything(),
+				expect.objectContaining({
+					body: JSON.stringify({
+						name: 'Zeus',
 						dob: '2009-02-02'
 					})
-				);
-			});
-
-			it('returns a complete error response', () => {
-				expect(result).toBeUnprocessableEntity({
-					error: 'Please provide a name.',
-					dob: '2009-02-02'
-				});
-			});
+				})
+			);
 		});
 
-		describe('when the date of birth is in the wrong format', () => {
-			let result;
-
-			beforeEach(async () => {
-				result = await performFormAction(createBirthday('Hercules', 'unknown'));
-			});
-
-			it('does not save the birthday', () => {
-				expect(birthdayRepository.getAll()).not.toContainEqual(
-					expect.objectContaining({
-						name: '',
-						dob: '2009-02-02'
-					})
-				);
-			});
-
-			it('returns a complete error response', () => {
-				expect(result).toBeUnprocessableEntity({
-					error: 'Please provide a date of birth in the YYYY-MM-DD format.',
-					name: 'Hercules',
-					dob: 'unknown'
-				});
-			});
-		});
-
-		describe('when the id is unknown', () => {
-			let result;
-
-			beforeEach(async () => {
-				result = await performFormAction(
-					createBirthday('Hercules', '2009-01-02', {
-						id: 'unknown'
-					})
-				);
-			});
-
-			it('does not save the birthday', () => {
-				expect(birthdayRepository.getAll()).not.toContainEqual(
-					expect.objectContaining({
-						name: 'Hercules',
-						dob: 'unknown'
-					})
-				);
-			});
-
-			it('returns a complete error message', () => {
-				expect(result).toBeUnprocessableEntity({
-					error: 'An unknown ID was provided.'
-				});
-			});
-		});
-	});
-
-	describe('when replacing an item', () => {
-		beforeEach(async () => {
-			await performFormAction(createBirthday('Hercules', '2009-01-02'));
-		});
-
-		it('returns the id when an empty name is provided', async () => {
+		it('returns a 422 if the POST request returns an error', async () => {
+			fetch.mockResolvedValue(fetchResponseError('error message'));
 			const result = await performFormAction(
-				createBirthday('', '1982-05-01', {
-					id: storedId()
+				createBirthday('Zeus', '2009-02-02', {
+					id: '123'
 				})
 			);
 
 			expect(result).toBeUnprocessableEntity({
-				id: storedId()
-			});
-		});
-
-		it('returns the id when an empty date of birth is provided', async () => {
-			const result = await performFormAction(
-				createBirthday('Hercules', '', {
-					id: storedId()
-				})
-			);
-
-			expect(result).toBeUnprocessableEntity({
-				id: storedId()
+				error: 'error message',
+				name: 'Zeus',
+				dob: '2009-02-02',
+				id: '123'
 			});
 		});
 	});
