@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createBirthday } from '../../../test/factories/birthday';
-import { addNew, clear, getAll, replace } from './birthdayRepository.js';
+import { addNew, clear, getAll, replace } from './birthdayRepository';
 
 describe('birthdayRepository', () => {
 	beforeEach(clear);

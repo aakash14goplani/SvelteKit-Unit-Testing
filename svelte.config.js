@@ -9,7 +9,11 @@ const config = {
 		alias: {
 			$src: './src',
 			$lib: './src/lib'
-		}
+		},
+		csrf: {
+			checkOrigin: false
+		},
+		
 	},
 	compilerOptions: {
 		enableSourcemap: true
