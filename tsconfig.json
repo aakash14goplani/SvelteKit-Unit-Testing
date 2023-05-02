@@ -20,6 +20,7 @@
 		"src/**/*.svelte",
 		"src/app.d.ts",
 		".svelte-kit/ambient.d.ts",
-		"@testing-library/jest-dom"
+		"@testing-library/jest-dom",
+		"svelte-component-double"
 	]
 }
