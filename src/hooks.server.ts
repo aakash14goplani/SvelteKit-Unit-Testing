@@ -7,6 +7,7 @@ const configuration: SvelteKitAuthConfig = {
 	providers: Object.values(authProviders),
 	debug: true,
 	secret: import.meta.env.VITE_CLIENT_SECRET,
+	trustHost: true,
 	session: {
 		maxAge: 3600
 	},
