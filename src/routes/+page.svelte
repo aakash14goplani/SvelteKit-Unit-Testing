@@ -1,4 +1,12 @@
-<h1>Welcome to SvelteKit</h1>
-<p>
-	Visit <a href="/birthdays">Birthday</a>
-</p>
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	onMount(() => goto('/login'));
+</script>
+
+<svelte:head>
+	<title>Home Page</title>
+</svelte:head>
+
+<h1>Birthday Listing Application</h1>

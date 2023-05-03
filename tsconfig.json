@@ -14,12 +14,13 @@
 		"moduleResolution": "node",
 		"jsx": "preserve",
 		"lib": ["esnext", "dom"],
-		"types": ["vite/client", "svelte", "vitest/globals"]
+		"types": ["vite/client", "svelte", "vitest/globals", "@auth/core"]
 	},
 	"include": [
 		"src/**/*.svelte",
 		"src/app.d.ts",
 		".svelte-kit/ambient.d.ts",
-		"@testing-library/jest-dom"
+		"@testing-library/jest-dom",
+		"src/env.d.ts"
 	]
 }

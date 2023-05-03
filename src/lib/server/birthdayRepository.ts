@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import type { Item } from '$lib/constants/constants';
+import type { Item } from '../constants/constants';
 
 const db = new Map();
 

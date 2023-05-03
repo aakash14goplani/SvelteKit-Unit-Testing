@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import Birthday from './Birthday.svelte';
 	import BirthdayForm from './BirthdayForm.svelte';
 
@@ -8,7 +9,12 @@
 	let editing = form?.id ? form : null;
 </script>
 
+<svelte:head>
+	<title>Birthday Listing Page</title>
+</svelte:head>
+
 <h1>Birthday list</h1>
+<button on:click={() => goto('/login')}>Home Page</button>
 <ol>
 	{#each data.birthdays as birthday}
 		<li>
