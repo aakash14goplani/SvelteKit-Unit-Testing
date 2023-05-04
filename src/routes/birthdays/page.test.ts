@@ -18,8 +18,16 @@ describe('/birthdays', () => {
 
 	it('displays all the birthdays passed to it', () => {
 		render(Page, { data: { birthdays } });
-		expect(screen.queryByText('Hercules')).toBeVisible();
-		expect(screen.queryByText('Athena')).toBeVisible();
+		expect(
+			screen.queryByText('Hercules', {
+				selector: 'li *'
+			})
+		).toBeVisible();
+		expect(
+			screen.queryByText('Athena', {
+				selector: 'li *'
+			})
+		).toBeVisible();
 	});
 
 	it('displays a heading for "Add a new birthday"', () => {

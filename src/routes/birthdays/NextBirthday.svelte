@@ -9,7 +9,7 @@
 		who: {}
 	};
 
-	const toNextBirthdayTime = (dob: string): number => {
+	const toNextBirthdayTime = (dob: string) => {
 		const birthdayThisYear = new Date(dob);
 		birthdayThisYear.setFullYear(currentDate.getFullYear());
 		if (birthdayThisYear.getTime() > currentDate.getTime()) {
@@ -25,7 +25,7 @@
 		birthdays.reduce(
 			({ nextBirthdayTime, who }, thisBirthday) => {
 				const thisBirthdayTime = toNextBirthdayTime(thisBirthday.dob || '');
-				if (nextBirthdayTime === null || thisBirthdayTime < nextBirthdayTime) {
+				if (nextBirthdayTime === -1 || thisBirthdayTime < nextBirthdayTime) {
 					return {
 						nextBirthdayTime: thisBirthdayTime,
 						who: thisBirthday
@@ -36,7 +36,7 @@
 			{ nextBirthdayTime: -1, who: {} }
 		);
 
-	const formatTime = (time: number): string => new Date(time).toISOString().substring(0, 10);
+	const formatTime = (time: number) => new Date(time).toISOString().substring(0, 10);
 
 	$: nextBirthday = findNextBirthday($birthdays);
 </script>

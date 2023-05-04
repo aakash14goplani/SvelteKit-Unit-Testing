@@ -13,7 +13,7 @@
 		"module": "esnext",
 		"moduleResolution": "node",
 		"jsx": "preserve",
-		"lib": ["esnext", "dom"],
+		"lib": ["esnext", "dom", "webworker"],
 		"types": ["vite/client", "svelte", "vitest/globals", "@auth/core"]
 	},
 	"include": [

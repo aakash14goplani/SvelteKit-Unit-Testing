@@ -24,10 +24,10 @@ describe('/birthdays', () => {
 
 	it('displays a Birthday component for each birthday', () => {
 		render(Page, { data: { birthdays } });
-		expect(screen.queryByText(/Hercules/)).toBeVisible();
-		expect(screen.queryByText(/1994-02-02/)).toBeVisible();
-		expect(screen.queryByText(/Athena/)).toBeVisible();
-		expect(screen.queryByText(/1989-01-01/)).toBeVisible();
+		expect(screen.getAllByText(/Hercules/)[0]).toBeVisible();
+		expect(screen.getAllByText(/1994-02-02/)[0]).toBeVisible();
+		expect(screen.getAllByText(/Athena/)[0]).toBeVisible();
+		expect(screen.getAllByText(/1989-01-01/)[0]).toBeVisible();
 	});
 
 	it('displays the Birthdays in the same order as the props passed in', () => {
