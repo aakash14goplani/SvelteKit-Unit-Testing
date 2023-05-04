@@ -18,7 +18,9 @@
 </svelte:head>
 
 <h1>Birthday list</h1>
-<NextBirthday />
+{#if $birthdays && $birthdays.length > 0}
+	<NextBirthday />
+{/if}
 <button on:click={() => goto('/login')}>Home Page</button>
 <ol>
 	{#each data.birthdays as birthday}
