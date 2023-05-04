@@ -41,7 +41,7 @@ const empty = (value: string) => value === undefined || value === null || value.
 
 const invalidDob = (dob: string) => isNaN(Date.parse(dob));
 
-const validate = ({ name, dob }: { name: string; dob: string }) => {
+const validate = ({ name, dob }: Item) => {
 	if (empty(name)) {
 		return { error: 'Please provide a name.' };
 	}

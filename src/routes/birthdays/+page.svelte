@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { birthdays } from '$src/stores/birthdays';
 	import Birthday from './Birthday.svelte';
 	import BirthdayForm from './BirthdayForm.svelte';
+	import NextBirthday from './NextBirthday.svelte';
 
 	export let data;
 	export let form: any = undefined;
+
+	$: birthdays.set(data.birthdays);
 
 	let editing = form?.id ? form : null;
 </script>
@@ -14,6 +18,7 @@
 </svelte:head>
 
 <h1>Birthday list</h1>
+<NextBirthday />
 <button on:click={() => goto('/login')}>Home Page</button>
 <ol>
 	{#each data.birthdays as birthday}
