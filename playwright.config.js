@@ -2,7 +2,7 @@
 
 const config = {
 	webServer: {
-		command: 'set VITE_ALLOW_CREDENTIALS=true && npm run build && npm run preview',
+		command: 'npm run build && npm run preview',
 		port: 4173
 	},
 	testDir: 'tests'
