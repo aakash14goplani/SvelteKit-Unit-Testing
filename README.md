@@ -1,3 +1,5 @@
 # SvelteKit-Unit-Testing
 
-Unit testing with SvelteKit, Vite and Playwright
+Review of book for Packt: Unit testing with SvelteKit, Vite and Playwright
+
+Reference: https://github.com/PacktPublishing/Svelte-with-Test-Driven-Development/tree/main
