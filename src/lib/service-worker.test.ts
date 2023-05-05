@@ -73,7 +73,7 @@ describe('fetchWithCacheOnError', () => {
 				resolve({
 					ok: true,
 					status: 200,
-					json: () => Promise.resolve({ data })
+					json: () => Promise.resolve({ data, _url })
 				});
 			});
 		};
@@ -86,9 +86,7 @@ describe('fetchWithCacheOnError', () => {
 		};
 		vi.spyOn(global.caches, 'open');
 		caches.open.mockResolvedValue(cache);
-
-		const fakeData = { fake: 'data' };
-		fetch = vi.fn().mockImplementation(setupFetchStub(fakeData));
+		fetch = vi.fn().mockImplementation(setupFetchStub(successResponse));
 	});
 
 	afterEach(() => {
